@@ -1,4 +1,4 @@
-function [psnr, bpp]=transcoder(filename, blocksize, qy, qc, scale, usejpgrate)
+function [psnr, bpp]=transcoder(filename, blocksize, qy, qc, scale, usejpgrate, transformMethod)
 
 % This is a very simple transform coder and decoder. Copy it to your directory
 % and edit it to suit your needs.
@@ -29,7 +29,14 @@ imyr=zeros(size(im));
 
 % First we code the luminance component
 % Here comes the coding part
-tmp = bdct(imy(:,:,1), blocksize); % DCT
+
+if transformMethod == "bdct"
+    tmp = bdct(imy(:,:,1), blocksize); % DCT
+else
+    tmp = bdwht(imy(:,:,1), blocksize); % bdwht
+end
+
+
 tmp = bquant(tmp, qy);             % Simple quantization
 p = ihist(tmp(:));                 % Only one huffman code
 % bits = bits + huffman(p);          % Add the contribution from
@@ -43,7 +50,14 @@ end
 			
 % Here comes the decoding part
 tmp = brec(tmp, qy);               % Reconstruction
-imyr(:,:,1) = ibdct(tmp, blocksize, [512 768]);  % Inverse DCT
+
+if transformMethod == "bdct"
+    imyr(:,:,1) = ibdct(tmp, blocksize, [512 768]);  % Inverse DCT
+else 
+    imyr(:,:,1) = ibdwht(tmp, blocksize, [512 768]);  % Inverse bdwht
+end
+
+
 
 % Next we code the chrominance components
 for c=2:3                          % Loop over the two chrominance components
@@ -57,7 +71,12 @@ for c=2:3                          % Loop over the two chrominance components
   % If you're using chrominance subsampling, it should be done
   % here, before the transform.
 
-  tmp = bdct(tmp, blocksize);      % DCT
+  if transformMethod == "bdct"
+    tmp = bdct(tmp, blocksize);      % DCT
+  else 
+    tmp = bdwht(tmp, blocksize);      % bdwht
+  end
+
   tmp = bquant(tmp, qc);           % Simple quantization
   p = ihist(tmp(:));               % Only one huffman code
 %   bits = bits + huffman(p);        % Add the contribution from
@@ -73,7 +92,13 @@ for c=2:3                          % Loop over the two chrominance components
 			
   % Here comes the decoding part
   tmp = brec(tmp, qc);            % Reconstruction
-  tmp = ibdct(tmp, blocksize, smallerSize);  % Inverse DCT
+
+  if transformMethod == "bdct"
+      tmp = ibdct(tmp, blocksize, smallerSize);  % Inverse DCT
+  else 
+      tmp = ibdwht(tmp, blocksize, smallerSize);  % Inverse bdwht
+  end
+  
 
   % If you're using chrominance subsampling, this is where the
   % signal should be upsampled, after the inverse transform.
