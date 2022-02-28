@@ -39,15 +39,13 @@ end
 
 tmp = bquant(tmp, qy);             % Simple quantization
 p = ihist(tmp(:));                 % Only one huffman code
-% bits = bits + huffman(p);          % Add the contribution from
-                                   % each component
 
 if usejpgrate
     bits = bits + sum(jpgrate(tmp, blocksize));
 else
-    bits = bits + huffman(p);
+     bits = bits + huffman(p); % Add the contribution from each component
 end
-			
+
 % Here comes the decoding part
 tmp = brec(tmp, qy);               % Reconstruction
 
@@ -79,15 +77,17 @@ for c=2:3                          % Loop over the two chrominance components
 
   tmp = bquant(tmp, qc);           % Simple quantization
   p = ihist(tmp(:));               % Only one huffman code
-%   bits = bits + huffman(p);        % Add the contribution from
                                    % each component  
-
-%   tmp = imresize(tmp, 0.5);
-
   if usejpgrate
     bits = bits + sum(jpgrate(tmp, blocksize));
   else
-    bits = bits + huffman(p);
+%      blsize = blocksize(1,1) * blocksize(1,1);
+     for i = 1:size(tmp, 2)
+%          tmp(:,i)
+         p = ihist(tmp(:, i));
+         bits = bits + huffman(p);
+     end
+%      bits = bits + huffman(p); % Add the contribution from
   end
 			
   % Here comes the decoding part
