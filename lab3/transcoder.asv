@@ -42,8 +42,6 @@ else
     QL=repmat(1:blocksize(1), blocksize(1), 1);
     QL= (QL+QL'-9) /blocksize(1);
     k1=0.1; k2=0.3;
-    k1=qy;
-    k2=qc;
     Q2=k1* (1+k2*QL);
     tmp = bquant(tmp, Q2);
 end
