@@ -150,6 +150,6 @@ psnr = 10*log10(1/dist);
 % title('Original image')
 
 %Display the coded and decoded image
-% figure, imshow(imr);
-% title(sprintf('Decoded image, %5.2f bits/pixel, PSNR %5.2f dB', bpp, psnr))
+figure, imshow(imr);
+title(sprintf('Decoded image, %5.2f bits/pixel, PSNR %5.2f dB', bpp, psnr))
 
